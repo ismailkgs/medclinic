@@ -1,0 +1,9 @@
+.git
+
+.idea
+
+.env
+
+target/*
+
+!target/medical-platform-0.0.1-SNAPSHOT.jar

@@ -1,31 +1,138 @@
-databaseChangeLog: # Начинает список изменений базы данных.
-  - changeSet: # Объявляет одну миграцию, которую Liquibase отслеживает как отдельное изменение.
-      id: 001-create-doctor-specialties # Задаёт уникальный идентификатор миграции внутри этого файла.
-      author: ismail # Указывает автора миграции.
-      changes: # Начинает список действий этой миграции.
-        - createTable: # Просит Liquibase создать таблицу.
-            tableName: doctor_specialties # Задаёт название таблицы специальностей врачей.
-            columns: # Начинает описание столбцов таблицы.
-              - column: # Начинает описание столбца идентификатора.
-                  name: id # Называет столбец id.
-                  type: BIGINT # Хранит идентификатор как 64-битное целое число.
-                  autoIncrement: true # Поручает базе автоматически генерировать идентификаторы.
-                  constraints: # Задаёт ограничения столбца идентификатора.
-                    primaryKey: true # Делает id первичным ключом таблицы.
-                    nullable: false # Запрещает пустое значение идентификатора.
-              - column: # Начинает описание столбца названия специальности.
-                  name: name # Называет столбец name.
-                  type: VARCHAR(100) # Хранит название длиной не более 100 символов.
-                  constraints: # Задаёт ограничения названия специальности.
-                    nullable: false # Запрещает отсутствие названия.
-                    unique: true # Запрещает повторение одинакового названия в таблице.
-  - changeSet: # Добавляет вторую миграцию в существующий список databaseChangeLog.
-      id: 002-insert-doctor-specialties # Задаёт идентификатор миграции наполнения справочника.
-      author: ismail # Указывает автора миграции.
-      changes: # Начинает список действий миграции.
-        - sql: # Объявляет действие с выполнением SQL.
-            sql: | # Начинает многострочный текст SQL; следующие строки сохраняют переносы.
-              INSERT INTO doctor_specialties (name) VALUES -- Указывает таблицу и столбец для добавления названий; id создаст база.
-              ('Терапевт'), -- Добавляет специальность терапевта.
-              ('Кардиолог'), -- Добавляет специальность кардиолога.
-              ('Хирург'); -- Добавляет специальность хирурга и завершает SQL-команду.
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-doctor-specialties
+      author: ismail
+      changes:
+        - createTable:
+            tableName: doctor_specialties
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+  - changeSet:
+      id: 002-insert-doctor-specialties
+      author: ismail
+      validCheckSum:
+        - "9:fa208d0ac99b288ea0c8aab65bea62a4"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO doctor_specialties (name) VALUES
+              ('Терапевт'),
+              ('Кардиолог'),
+              ('Хирург');
+  - changeSet:
+      id: 003-create-doctors
+      author: ismail
+      changes:
+        - createTable:
+            tableName: doctors
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: patronymic
+                  type: VARCHAR(100)
+              - column:
+                  name: specialty_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_doctors_specialty
+            baseTableName: doctors
+            baseColumnNames: specialty_id
+            referencedTableName: doctor_specialties
+            referencedColumnNames: id
+            onDelete: RESTRICT
+        - createIndex:
+            tableName: doctors
+            indexName: idx_doctors_specialty_id
+            columns:
+              - column:
+                  name: specialty_id
+  - changeSet:
+      id: 004-insert-demo-doctor
+      author: ismail
+      validCheckSum:
+        - "9:5172fca61a447ab067397a87501446e4"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO doctors (last_name, first_name, patronymic, specialty_id)
+              SELECT 'Учебный', 'Иван', 'Иванович', id
+              FROM doctor_specialties
+              WHERE name = 'Терапевт';
+  - changeSet:
+      id: 005-create-booking-tables
+      author: ismail
+      validCheckSum:
+        - "9:a006214833fdcd7dd3a13fbe1c84894e"
+      changes:
+        - sqlFile:
+            path: changes/005-create-booking-tables.sql
+            relativeToChangelogFile: true
+            encoding: UTF-8
+  - changeSet:
+      id: 006-link-doctors-to-keycloak
+      author: ismail
+      changes:
+        - sql:
+            sql: ALTER TABLE doctors ADD COLUMN keycloak_subject VARCHAR(255) UNIQUE;
+  - changeSet:
+      id: 007-create-lab-and-outbox
+      author: ismail
+      validCheckSum:
+        - "9:bd59dd5e7ba3a3e4cc9dbb38014ec92b"
+      changes:
+        - sqlFile:
+            path: changes/007-create-lab-and-outbox.sql
+            relativeToChangelogFile: true
+            encoding: UTF-8
+  - changeSet:
+      id: 008-create-reports-and-notifications
+      author: ismail
+      validCheckSum:
+        - "9:512507d29a44fff953cb2af7535085a4"
+      changes:
+        - sqlFile:
+            path: changes/008-create-reports-and-notifications.sql
+            relativeToChangelogFile: true
+            encoding: UTF-8
+
+  - changeSet:
+      id: 009-demo-identities
+      author: ismail
+      validCheckSum:
+        - "9:546eadf9f1100295853d30f22e87be55"
+      contextFilter: "@demo"
+      changes:
+        - sqlFile:
+            path: changes/009-demo-identities.sql
+            relativeToChangelogFile: true
+            encoding: UTF-8

@@ -1,0 +1,108 @@
+{
+  "realm": "medical",
+  "enabled": true,
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "DOCTOR"
+      },
+      {
+        "name": "PATIENT"
+      },
+      {
+        "name": "ADMIN"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "medical-cli",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [
+        "basic",
+        "profile",
+        "email",
+        "roles"
+      ],
+      "protocolMappers": [
+        {
+          "name": "medical-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "medical-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "83d4eb74-a63a-4b70-85c4-0237108ac40f",
+      "username": "doctor.demo",
+      "enabled": true,
+      "firstName": "Ivan",
+      "lastName": "Doctor",
+      "email": "doctor.demo@example.invalid",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Doctor_demo_2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "DOCTOR"
+      ]
+    },
+    {
+      "id": "69e4b0f4-2aa6-4d2b-bcdc-3caba0708766",
+      "username": "patient.demo",
+      "enabled": true,
+      "firstName": "Petr",
+      "lastName": "Patient",
+      "email": "patient.demo@example.invalid",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Patient_demo_2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "PATIENT"
+      ]
+    },
+    {
+      "id": "1a2b3c4d-1111-4222-8333-123456789abc",
+      "username": "admin.demo",
+      "enabled": true,
+      "firstName": "Platform",
+      "lastName": "Admin",
+      "email": "admin.demo@example.invalid",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin_demo_2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    }
+  ]
+}
